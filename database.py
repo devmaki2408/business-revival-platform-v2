@@ -21,8 +21,10 @@ DB_PATH = Path("data/tech0_hr.db")
 def get_connection() -> sqlite3.Connection:
     """
     SQLite データベースへの接続を返す。
+    - data/ フォルダがなければ自動作成
     - Row を dict 風に使えるようにする
     """
+    DB_PATH.parent.mkdir(exist_ok=True)
     conn = sqlite3.connect(str(DB_PATH))
     conn.row_factory = sqlite3.Row
     return conn
@@ -32,11 +34,20 @@ def init_db():
     """
     schema.sql を実行してテーブルを初期化する。
     既にテーブルがある場合は何もしない（IF NOT EXISTS）。
+    テーブル作成後、社員データが0件なら自動で seed を実行する。
     """
     conn = get_connection()
     with open("schema.sql", "r", encoding="utf-8") as f:
         conn.executescript(f.read())
+
+    # 社員データが空なら自動投入
+    cursor = conn.execute("SELECT COUNT(*) FROM employees")
+    count = cursor.fetchone()[0]
     conn.close()
+
+    if count == 0:
+        from seed_data import seed
+        seed()
 
 
 # ---------- 社員データ取得 ---------- #

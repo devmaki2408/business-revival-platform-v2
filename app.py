@@ -25,6 +25,7 @@ app.py — Streamlit メインアプリケーション
   - st.rerun() でページを再描画（ステップ遷移時に使う）
 """
 
+import os
 import streamlit as st
 import json
 from database import init_db, get_all_employees, save_session_log
@@ -52,6 +53,237 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+# ---------- (わーちゃん追記)見た目を整える共通CSS ---------- #
+# ★ ここでは「色・余白・カード感」だけをまとめて調整する。
+# ★ 処理ロジックには触れず、UIの見え方だけを変えるための設定。
+# ★ 後から見返したときに、どこで全体デザインを変えているか分かるように
+#   app.py の上の方にまとめて置いている。
+
+CUSTOM_CSS = """
+<style>
+/* ===== 全体のベース設定 ===== */
+.main {
+    background: linear-gradient(180deg, #050816 0%, #0b1020 100%);
+}
+
+.block-container {
+    max-width: 1100px;
+    padding-top: 2.6rem;
+    padding-bottom: 4rem;
+}
+
+/* ===== テキストの見え方 ===== */
+h1, h2, h3, h4, h5, h6 {
+    color: #f8fafc;
+    letter-spacing: -0.02em;
+}
+
+p, li, label, .stMarkdown, .stCaption, .stText {
+    color: #d1d5db;
+}
+
+/* ===== ヒーローエリア用 ===== */
+.hero-wrap {
+    padding: 0.2rem 0 0.45rem 0;
+}
+
+.hero-badge {
+    display: inline-block;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid rgba(129, 140, 248, 0.5);
+    background: rgba(99, 102, 241, 0.12);
+    color: #c4b5fd;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.55rem;
+}
+
+.hero-title {
+    font-size: clamp(1.45rem, 3.2vw, 2.55rem);
+    line-height: 1.15;
+    font-weight: 850;
+    color: #f8fafc;
+    margin: 0 0 0.35rem 0;
+    max-width: 760px;
+}
+
+.hero-title .accent {
+    background: linear-gradient(90deg, #c4b5fd 0%, #8b5cf6 50%, #6366f1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-desc {
+    font-size: 0.93rem;
+    line-height: 1.6;
+    color: #cbd5e1;
+    max-width: 640px;
+    margin-bottom: 0.35rem;
+}
+
+.status-badge {
+    display: inline-block;
+    margin-top: 0.15rem;
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.88rem;
+}
+
+.status-badge.connected {
+    background: rgba(16, 185, 129, 0.14);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #6ee7b7;
+}
+
+.status-badge.disconnected {
+    background: rgba(245, 158, 11, 0.14);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #fcd34d;
+}
+
+/* ===== カード風の見た目 ===== */
+.section-card {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(17, 24, 39, 0.95) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.30);
+    border-radius: 22px;
+    padding: 1rem 1.15rem;
+    margin: 0.02rem 0 0.3rem 0;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+}
+
+.section-card h3 {
+    margin-top: 0;
+    margin-bottom: 0.65rem;
+    color: #f8fafc;
+}
+
+.section-card p {
+    margin-bottom: 0.2rem;
+}
+
+.section-card.step1-card {
+    border: 1px solid rgba(129, 140, 248, 0.38);
+    box-shadow: 0 14px 34px rgba(79, 70, 229, 0.14);
+}
+
+.step1-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.45rem;
+}
+
+/* ===== 入力欄の見た目 ===== */
+div[data-baseweb="input"] > div {
+    background-color: rgba(15, 23, 42, 0.98);
+    border: 1px solid rgba(129, 140, 248, 0.42);
+    border-radius: 18px;
+    padding: 0.95rem 0.75rem;
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.06);
+}
+
+input {
+    color: #f8fafc !important;
+    font-size: 1.08rem !important;
+}
+
+/* ===== ボタンの見た目 ===== */
+.stButton > button {
+    border: none;
+    border-radius: 16px;
+    padding: 0.72rem 1.15rem;
+    font-weight: 800;
+    color: white;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.28);
+    transition: 0.2s ease;
+}
+
+.stButton > button:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+
+/* ===== Expander / Tabs / Metric の見た目調整 ===== */
+.streamlit-expanderHeader {
+    color: #f8fafc;
+    font-weight: 700;
+}
+
+[data-baseweb="tab-list"] {
+    gap: 0.35rem;
+}
+
+button[role="tab"] {
+    border-radius: 999px !important;
+    background: rgba(99, 102, 241, 0.10) !important;
+    color: #cbd5e1 !important;
+}
+
+button[role="tab"][aria-selected="true"] {
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.35), rgba(139, 92, 246, 0.35)) !important;
+    color: #ffffff !important;
+}
+
+[data-testid="stMetric"] {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    border-radius: 18px;
+    padding: 0.75rem;
+}
+
+/* ===== サイドバー調整 ===== */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #050816 0%, #0b1020 100%);
+    border-right: 1px solid rgba(99, 102, 241, 0.18);
+}
+
+[data-testid="stSidebar"] * {
+    color: #e5e7eb;
+}
+
+/* サイドバー内のボタンもメインと寄せる */
+[data-testid="stSidebar"] .stButton > button {
+    width: 100%;
+    border: none;
+    border-radius: 16px;
+    padding: 0.72rem 1rem;
+    font-weight: 800;
+    color: white;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.22);
+}
+
+[data-testid="stSidebar"] hr {
+    border-color: rgba(148, 163, 184, 0.14);
+}
+
+.hero-divider {
+    margin: 0.35rem 0 0.2rem 0;
+    border: none;
+    border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+/* Markdown見出しに出るアンカー風リンクアイコンを非表示 */
+a.anchor-link {
+    display: none !important;
+}
+
+/* ===== 区切り線を少し柔らかくする ===== */
+hr {
+    border-color: rgba(148, 163, 184, 0.18);
+}
+</style>
+"""
+
+st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+
+# ---------- OpenAI 接続状態の表示用 ---------- #
+# ★ 「接続中 / 未接続」を見た目で分かるようにするための簡易フラグ。
+# ★ 今回は画面上の案内用なので、環境変数の有無で判定する。
+OPENAI_CONNECTED = bool(os.getenv("OPENAI_API_KEY"))
 
 # DB 初期化
 init_db()
@@ -112,11 +344,33 @@ with st.sidebar:
     st.caption("テクゼロン 人財駆動型・企業再興プラットフォーム v0.2")
 
 
-# ---------- メインヘッダー ---------- #
+# ---------- （わーちゃん変更）メインヘッダー ---------- #
+# ★ st.title / st.caption に加えて
+#   HTML + CSS でデザインを整えました。
+# ★ ただし、見た目だけを変えていて、下の処理ロジックには影響しない。
 
-st.title("🚀 テクゼロン 人財駆動型・企業再興プラットフォーム")
-st.caption("市場を入力 → AI分析 → 課題発見 → 解決策生成 → リーンキャンバス → 最適チーム編成")
-st.divider()
+# ★ ユーザー向け説明は短くして、「何をすればいいか」がすぐ分かる文章にする。
+# ★ 接続状態は environment variable の有無で表示を出し分ける。
+status_class = "connected" if OPENAI_CONNECTED else "disconnected"
+status_text = "● OpenAI API 接続中" if OPENAI_CONNECTED else "● OpenAI API 未接続（デモ確認向け）"
+
+st.markdown(
+    f"""
+    <div class="hero-wrap">
+        <div class="hero-badge">✦ AI BUSINESS ARCHITECT</div>
+        <div class="hero-title">
+            テクゼロンの<strong class="accent">人財</strong>とAIで、<br>
+            新規事業の仮説を設計する
+        </div>
+        <div class="hero-desc">
+            攻めたい市場を入力すると、AIが分析と案出しを支援します。<br>
+        </div>
+        <div class="status-badge {status_class}">{status_text}</div>
+    </div>
+    <hr class="hero-divider">
+    """,
+    unsafe_allow_html=True,
+)
 
 
 # ============================================================
@@ -124,14 +378,26 @@ st.divider()
 # ============================================================
 # ★ if/elif で current_step に応じて画面を切り替え
 
+# ---わーちゃん修正(ここから)---
 if st.session_state.current_step == 1:
-    st.header("① 市場・ターゲットを入力")
-    st.markdown("テクゼロンが攻めたい市場やターゲットを自由に入力してください。")
+    # ★ STEP1 は入力欄を主役にしたいので、シンプルな見出し＋補助文だけにする。
+    # ★ Markdown見出しだと環境によってアンカー風アイコンが出ることがあるため、
+    #   HTMLで見出しを描画して余計なリンク表示を避ける。
+    st.markdown(
+        """
+        <div class="step1-heading">① 市場・ターゲットを入力</div>
+        <div class="step1-help">分析したい市場やターゲットを入力してください。</div>
+        """,
+        unsafe_allow_html=True,
+    )
 
+    # ★ text_input は label が必須。
+    # ★ 画面上では見せたくないので label_visibility="collapsed" で隠す。
     market = st.text_input(
         "市場・ターゲット",
         value=st.session_state.market_input,
         placeholder="例: 製造業DX×設備予兆保全、半導体製造の歩留まり改善、工場の技能承継デジタル化 ...",
+        label_visibility="collapsed",
     )
 
     col1, col2 = st.columns([1, 4])
@@ -144,8 +410,10 @@ if st.session_state.current_step == 1:
             else:
                 st.warning("市場・ターゲットを入力してください。")
 
-    # ★ テクゼロンの事業に合った入力例を提示
+    # ★ テクゼロンの事業に合った入力例を提示。
+    # ★ ここは「何を書けばいいか分からない」を防ぐための補助エリア。
     with st.expander("💡 入力例を見る（テクゼロンの強みを活かせるテーマ）"):
+        st.caption("気になるテーマがあれば、そのまま押して次の分析に進めます。")
         examples = [
             "製造業DX×設備予兆保全サービス",
             "半導体製造の歩留まり改善×AI分析",

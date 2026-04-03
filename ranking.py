@@ -79,7 +79,7 @@ def format_score_display(scoring: dict) -> str:
 
     total = scoring.get("total", 0)
     lines.append(f"──────────────────")
-    lines.append(f"総合スコア: {total} /  25")
+    lines.append(f"総合スコア: {total} / 25")
     return "\n".join(lines)
 
 
@@ -111,7 +111,7 @@ def build_team_for_solution(solution_title: str, solution_desc: str) -> dict:
             "position": emp["position"],
             "years_experience": emp["years_experience"],
             "skills": emp["skills"],
-            "mbti": emp["mbti"],
+            #"mbti": emp["mbti"],
             "has_mba": emp["has_mba"],
             "past_projects": emp["past_projects"],
             "specialty": emp["specialty"],

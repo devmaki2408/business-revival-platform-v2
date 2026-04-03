@@ -1,34 +1,36 @@
 """
-matching.py — 人財マッチング & スコアリング ロジック
+ranking.py — 人財マッチング & スコアリング ロジック
 =====================================================
 【担当者】みっきー（ランキング担当）
 【役割】解決策のスコアリング表示ロジックと、テクゼロン社員DBからの最適チーム選抜を行う。
-        参考アプリの ranking.py に相当する。
 
-【TODO（写経ポイント）】
-  1. SCORING_AXES           ★ 定数リストの定義を学ぶ
-  2. rank_solutions()       ★ sorted() + lambda でカスタムソートを学ぶ
-  3. format_score_display()  ★ 文字列フォーマットを学ぶ
-  4. build_team_for_solution() ★ DB → AI → 結果返却の連携を学ぶ
-  5. MBTI_COMPLEMENTS       ★ 辞書（dict）の定義を学ぶ
-  6. get_mbti_compatibility_note() ★ リスト内包表記とカウントロジックを学ぶ
+【解説】
+  このファイルの構成:
+  1. SCORING_AXES  — スコアリング5軸の定義（app.py からも参照される）
+  2. rank_solutions()  — 解決策をスコア順にソートする
+  3. format_score_display()  — スコアを星表示に変換する
+  4. build_team_for_solution()  — DB → AI → チーム編成結果を返す
+  5. MBTI相性ヘルパー  — チームのMBTIバランスを分析する
+
+  このモジュールは crawler.py と database.py の両方を使う「橋渡し役」。
 
 【ヒント】
-  - このモジュールは ai_engine.py と database.py の両方を使う「橋渡し役」
   - ランキングは sorted() + lambda で簡単に実装できる
   - チーム編成は DB → AI に渡す → 結果を返す の3ステップ
 """
 
 import json
 from database import get_all_employees
-from ai_engine import match_team
+from crawler import match_team
 
 
-# ---------- 解決策のスコアリング・ランキング ---------- #
+# ============================================================
+# 解決策のスコアリング・ランキング
+# ============================================================
 
-# ★ スコアリング5軸の定義（app.py からも参照される定数）
+# スコアリング5軸の定義（app.py からも参照される定数）
 SCORING_AXES = [
-    ("market_size", "市場規模・成長性"),
+    ("market_size", "市場規模/成長性"),
     ("feasibility", "実現可能性"),
     ("profitability", "収益性"),
     ("innovativeness", "革新性"),
@@ -39,8 +41,11 @@ SCORING_AXES = [
 def rank_solutions(solutions: list[dict]) -> list[dict]:
     """
     解決策をスコアの合計値で降順ソートする。
-    ★ sorted() の key に lambda を使うカスタムソートを学ぶ
-    ★ enumerate() で順位番号を付与する方法を学ぶ
+
+    【解説】
+      sorted() の key に lambda を使うと、何を基準にソートするかを指定できる。
+      reverse=True で降順（大きい順）にする。
+      その後 enumerate() で 1位, 2位... と順位番号を振る。
     """
     # total でソート（高い順）
     sorted_solutions = sorted(
@@ -59,7 +64,10 @@ def rank_solutions(solutions: list[dict]) -> list[dict]:
 def format_score_display(scoring: dict) -> str:
     """
     スコアリング結果を見やすい文字列に変換する。
-    ★ "★" * score で星を繰り返し表示する方法を学ぶ
+
+    【解説】
+      "★" * score で星を繰り返し表示できる。
+      例: score=4 → "★★★★☆"
     """
     lines = []
     for key, label in SCORING_AXES:
@@ -71,21 +79,23 @@ def format_score_display(scoring: dict) -> str:
 
     total = scoring.get("total", 0)
     lines.append(f"──────────────────")
-    lines.append(f"総合スコア: {total}/25")
+    lines.append(f"総合スコア: {total} / 25")
     return "\n".join(lines)
 
 
-# ---------- チームマッチング ---------- #
+# ============================================================
+# チームマッチング
+# ============================================================
 
 def build_team_for_solution(solution_title: str, solution_desc: str) -> dict:
     """
     選択された解決策に最適な4人チームを編成する。
-    ★ DB → JSON変換 → AI呼び出し の連携パターンを学ぶ
 
-    1. DB から全社員を取得
-    2. AI に渡す用の社員情報（必要フィールドのみ）に整形
-    3. ai_engine.match_team に社員リスト+解決策を渡す
-    4. AIの選抜結果を返す
+    【解説】処理の流れ:
+      1. DB から全社員を取得
+      2. AI に渡す用の社員情報（必要フィールドのみ）に整形
+      3. crawler.match_team に社員リスト+解決策を渡す
+      4. AIの選抜結果を返す
     """
     # 全社員データ取得
     employees = get_all_employees()
@@ -120,9 +130,11 @@ def build_team_for_solution(solution_title: str, solution_desc: str) -> dict:
     return result
 
 
-# ---------- MBTI 相性ヘルパー ---------- #
+# ============================================================
+# MBTI 相性ヘルパー
+# ============================================================
 
-# ★ MBTIの相性テーブル（対極タイプが補完関係）
+# MBTIの相性テーブル（対極タイプが補完関係）
 MBTI_COMPLEMENTS = {
     "ENTJ": ["INTP", "INFP", "ISTP"],
     "ENTP": ["INTJ", "INFJ", "ISTJ"],
@@ -146,7 +158,11 @@ MBTI_COMPLEMENTS = {
 def get_mbti_compatibility_note(team_mbtis: list[str]) -> str:
     """
     チームの MBTI 構成からバランスコメントを返す。
-    ★ リスト内包表記と sum() でカウントする方法を学ぶ
+
+    【解説】
+      sum(1 for m in team_mbtis if 条件) で条件に合う数をカウントしている。
+      MBTIの1文字目が E=外向型、I=内向型。
+      MBTIの3文字目が T=思考型、F=感情型。
     """
     e_count = sum(1 for m in team_mbtis if m and m[0] == "E")
     i_count = sum(1 for m in team_mbtis if m and m[0] == "I")
@@ -172,7 +188,6 @@ def get_mbti_compatibility_note(team_mbtis: list[str]) -> str:
 
 
 # ---------- テスト用 ---------- #
-
 if __name__ == "__main__":
     dummy = [
         {"id": 1, "title": "案A", "scoring": {"total": 18}},

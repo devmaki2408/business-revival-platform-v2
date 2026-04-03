@@ -79,7 +79,7 @@ def format_score_display(scoring: dict) -> str:
 
     total = scoring.get("total", 0)
     lines.append(f"──────────────────")
-    lines.append(f"総合スコア: {total} / 25")
+    lines.append(f"総合スコア: {total} /  25")
     return "\n".join(lines)
 
 

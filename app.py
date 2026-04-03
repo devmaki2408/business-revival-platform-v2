@@ -29,14 +29,14 @@ import os
 import streamlit as st
 import json
 from database import init_db, get_all_employees, save_session_log
-from ai_engine import (
+from crawler import (
     run_pest_analysis,
     run_five_forces_analysis,
     generate_issues,
     generate_solutions,
     generate_lean_canvas,
 )
-from matching import (
+from ranking import (
     rank_solutions,
     format_score_display,
     build_team_for_solution,

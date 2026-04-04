@@ -80,6 +80,15 @@ h1, h2, h3, h4, h5, h6 {
 
 p, li, label, .stMarkdown, .stCaption, .stText {
     color: #d1d5db;
+    font-size: 1.22rem;
+    line-height: 1.95;
+}
+
+/* StreamlitのMarkdown本文・箇条書きも大きめに統一 */
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li {
+    font-size: 1.22rem !important;
+    line-height: 1.95 !important;
 }
 
 /* ===== ヒーローエリア用 ===== */
@@ -117,10 +126,10 @@ p, li, label, .stMarkdown, .stCaption, .stText {
 }
 
 .hero-desc {
-    font-size: 0.93rem;
-    line-height: 1.6;
+    font-size: 1.22rem;
+    line-height: 1.95;
     color: #cbd5e1;
-    max-width: 640px;
+    max-width: 820px;
     margin-bottom: 0.35rem;
 }
 
@@ -163,6 +172,8 @@ p, li, label, .stMarkdown, .stCaption, .stText {
 
 .section-card p {
     margin-bottom: 0.2rem;
+    font-size: 1.22rem;
+    line-height: 1.95;
 }
 
 .section-card.step1-card {
@@ -186,23 +197,41 @@ div[data-baseweb="input"] > div {
 
 input {
     color: #f8fafc !important;
-    font-size: 1.08rem !important;
+    font-size: 1.15rem !important;
 }
 
 /* ===== ボタンの見た目 ===== */
+/* ★ UX上、すべてのボタンが同じ見た目だと「戻る」と「進む」が判別しづらい。
+   そのため、デフォルトボタン（戻る・補助操作）は落ち着いた見た目、
+   type="primary" のボタン（生成・次へ進む）は強調表示に分ける。 */
+
+/* デフォルトボタン = 戻る / 再試行 / 補助操作 */
 .stButton > button {
-    border: none;
+    border: 1px solid rgba(129, 140, 248, 0.26);
     border-radius: 16px;
     padding: 0.72rem 1.15rem;
     font-weight: 800;
-    color: white;
-    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
-    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.28);
+    color: #e5e7eb;
+    background: rgba(15, 23, 42, 0.88);
+    box-shadow: none;
     transition: 0.2s ease;
 }
 
 .stButton > button:hover {
     transform: translateY(-1px);
+    background: rgba(30, 41, 59, 0.96);
+    border-color: rgba(129, 140, 248, 0.42);
+}
+
+/* 主要ボタン = 生成 / 分析開始 / 次へ進む */
+.stButton > button[kind="primary"] {
+    border: none;
+    color: white;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.28);
+}
+
+.stButton > button[kind="primary"]:hover {
     filter: brightness(1.05);
 }
 
@@ -210,6 +239,7 @@ input {
 .streamlit-expanderHeader {
     color: #f8fafc;
     font-weight: 700;
+    font-size: 1.18rem;
 }
 
 [data-baseweb="tab-list"] {
@@ -231,7 +261,15 @@ button[role="tab"][aria-selected="true"] {
     background: rgba(15, 23, 42, 0.8);
     border: 1px solid rgba(99, 102, 241, 0.18);
     border-radius: 18px;
-    padding: 0.75rem;
+    padding: 0.85rem;
+}
+
+[data-testid="stMetricLabel"] {
+    font-size: 1.05rem !important;
+}
+
+[data-testid="stMetricValue"] {
+    font-size: 1.18rem !important;
 }
 
 /* ===== サイドバー調整 ===== */
@@ -244,13 +282,20 @@ button[role="tab"][aria-selected="true"] {
     color: #e5e7eb;
 }
 
-/* サイドバー内のボタンもメインと寄せる */
+/* サイドバー内のボタンもメインと同じ思想で分ける */
 [data-testid="stSidebar"] .stButton > button {
     width: 100%;
-    border: none;
+    border: 1px solid rgba(129, 140, 248, 0.24);
     border-radius: 16px;
     padding: 0.72rem 1rem;
     font-weight: 800;
+    color: #e5e7eb;
+    background: rgba(15, 23, 42, 0.88);
+    box-shadow: none;
+}
+
+[data-testid="stSidebar"] .stButton > button[kind="primary"] {
+    border: none;
     color: white;
     background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
     box-shadow: 0 10px 24px rgba(99, 102, 241, 0.22);
@@ -269,6 +314,25 @@ button[role="tab"][aria-selected="true"] {
 /* Markdown見出しに出るアンカー風リンクアイコンを非表示 */
 a.anchor-link {
     display: none !important;
+}
+
+/* STEP4以降の「対象市場 / 選択した課題 / ターゲット」表示を少し見やすくする */
+.info-block {
+    font-size: 1.28rem;
+    line-height: 2.0;
+    margin-bottom: 0.5rem;
+}
+
+/* 補足説明・success/info/caption系も少し読みやすくする */
+[data-testid="stAlertContainer"] {
+    font-size: 1.16rem;
+    line-height: 1.9;
+}
+
+[data-testid="stAlertContainer"] p,
+[data-testid="stAlertContainer"] li {
+    font-size: 1.16rem !important;
+    line-height: 1.9 !important;
 }
 
 /* ===== 区切り線を少し柔らかくする ===== */
@@ -396,7 +460,6 @@ if st.session_state.current_step == 1:
     market = st.text_input(
         "市場・ターゲット",
         value=st.session_state.market_input,
-        placeholder="例: 製造業DX×設備予兆保全、半導体製造の歩留まり改善、工場の技能承継デジタル化 ...",
         label_visibility="collapsed",
     )
 
@@ -413,7 +476,7 @@ if st.session_state.current_step == 1:
     # ★ テクゼロンの事業に合った入力例を提示。
     # ★ ここは「何を書けばいいか分からない」を防ぐための補助エリア。
     with st.expander("💡 入力例を見る（テクゼロンの強みを活かせるテーマ）"):
-        st.caption("気になるテーマがあれば、そのまま押して次の分析に進めます。")
+        st.caption("気になるテーマがあれば押してください。上の入力欄に反映されます。")
         examples = [
             "製造業DX×設備予兆保全サービス",
             "半導体製造の歩留まり改善×AI分析",
@@ -423,8 +486,9 @@ if st.session_state.current_step == 1:
         ]
         for ex in examples:
             if st.button(ex, key=f"ex_{ex}"):
+                # ★ 入力例を押したら、そのまま次に進むのではなく、
+                #   上の入力欄へ値を反映するだけにする。
                 st.session_state.market_input = ex
-                st.session_state.current_step = 2
                 st.rerun()
 
 
@@ -573,9 +637,9 @@ elif st.session_state.current_step == 4:
     st.header("④ 解決策の生成")
 
     issue = st.session_state.selected_issue
-    st.markdown(f"**対象市場:** {st.session_state.market_input}")
-    st.markdown(f"**選択した課題:** {issue.get('issue', '')}")
-    st.markdown(f"**ターゲット:** {issue.get('target', '')} — {issue.get('detail', '')}")
+    st.markdown(f'<div class="info-block"><strong>対象市場:</strong> {st.session_state.market_input}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="info-block"><strong>選択した課題:</strong> {issue.get("issue", "")}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="info-block"><strong>ターゲット:</strong> {issue.get("target", "")} — {issue.get("detail", "")}</div>', unsafe_allow_html=True)
     st.divider()
 
     col1, col2 = st.columns([1, 3])
@@ -622,8 +686,8 @@ elif st.session_state.current_step == 4:
                 for idx, (key, label) in enumerate(SCORING_AXES):
                     axis = scoring.get(key, {})
                     with score_cols[idx]:
-                        s = axis.get("score", 0)
-                        st.metric(label, f"{'★' * s}{'☆' * (5-s)}")
+                        s = int(axis.get("score", 0))
+                        st.metric(label, f"{'★' * s}{'☆' * (5-s)} ({s}/5)")
                         st.caption(axis.get("reason", ""))
 
                 st.divider()
@@ -745,25 +809,17 @@ elif st.session_state.current_step == 5:
 
         st.divider()
 
-        col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
         with col1:
             if st.button("⬅️ 解決策選択に戻る", use_container_width=True):
                 st.session_state.current_step = 4
                 st.session_state.lean_canvas_result = None
                 st.rerun()
+
         with col2:
-            if st.button("🔄 リーンキャンバスを再生成", use_container_width=True):
-                st.session_state.lean_canvas_result = None
-                st.rerun()
-        with col3:
             if st.button("➡️ チーム編成へ進む", type="primary", use_container_width=True):
                 st.session_state.current_step = 6
                 st.rerun()
-    else:
-        st.error(f"リーンキャンバス生成でエラーが発生しました: {lc.get('error', '不明')}")
-        if st.button("🔄 再試行"):
-            st.session_state.lean_canvas_result = None
-            st.rerun()
 
 
 # ============================================================

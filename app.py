@@ -711,6 +711,21 @@ elif st.session_state.current_step == 2:
     st.markdown('<div class="page-step-title">② 市場分析</div>', unsafe_allow_html=True)
     st.markdown(f"**対象市場:** {st.session_state.market_input}")
 
+    top_action_col1, top_spacer, top_action_col2 = st.columns([1.2, 0.2, 1.2])
+    with top_action_col1:
+        if st.button("⬅️ 市場を変更する", key="step2_back_top", use_container_width=True, type="tertiary"):
+            st.session_state.current_step = 1
+            st.session_state.analysis_done = False
+            st.session_state.pest_result = None
+            st.session_state.five_forces_result = None
+            st.rerun()
+    with top_action_col2:
+        if st.button("➡️ この分析内容で課題の探索へ進む", key="step2_next_top", type="primary", use_container_width=True):
+            st.session_state.current_step = 3
+            st.rerun()
+
+    st.markdown("<div style='height: 0.45rem;'></div>", unsafe_allow_html=True)
+
     # まだ分析していない場合
     if not st.session_state.analysis_done:
         with st.spinner("🔄 PEST分析と5つの力分析を実行中... (30秒ほどお待ちください)"):
@@ -770,16 +785,16 @@ elif st.session_state.current_step == 2:
 
     st.divider()
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("⬅️ 市場を変更する"):
+    bottom_col1, bottom_spacer, bottom_col2 = st.columns([1.2, 0.2, 1.2])
+    with bottom_col1:
+        if st.button("⬅️ 市場を変更する", key="step2_back_bottom", use_container_width=True, type="tertiary"):
             st.session_state.current_step = 1
             st.session_state.analysis_done = False
             st.session_state.pest_result = None
             st.session_state.five_forces_result = None
             st.rerun()
-    with col2:
-        if st.button("➡️ 課題の探索へ進む", type="primary"):
+    with bottom_col2:
+        if st.button("➡️ この分析内容で課題の探索へ進む", key="step2_next_bottom", type="primary", use_container_width=True):
             st.session_state.current_step = 3
             st.rerun()
 
@@ -794,12 +809,18 @@ elif st.session_state.current_step == 3:
     st.markdown(f"**対象市場:** {st.session_state.market_input}")
     st.markdown("AIがテクゼロンの技術資産を踏まえた課題を10個ずつ生成します。納得できるまで何度でも再生成できます。")
 
-    # ★ 初回生成ボタンは上に置き、一覧表示後の「さらに10個生成」は下に置く。
-    # ★ 一覧を読んだ後に追加生成する方が、ユーザーの思考の流れに合うため。
+    # ★ 初回状態では「市場分析へ戻る」と「課題を生成する」を同じ段に並べる。
+    # ★ これにより、次の主操作と前のステップへの戻り操作がすぐ分かる。
     if not st.session_state.issues:
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            if st.button("課題を生成する", type="primary", use_container_width=True):
+        top_action_col1, top_spacer, top_action_col2 = st.columns([1.2, 0.2, 1.2])
+
+        with top_action_col1:
+            if st.button("⬅️ 市場分析へ戻る", key="step3_back_top", use_container_width=True, type="tertiary"):
+                st.session_state.current_step = 2
+                st.rerun()
+
+        with top_action_col2:
+            if st.button("🔄 課題を生成する", key="step3_generate_initial", type="primary", use_container_width=True):
                 existing = [iss["issue"] for iss in st.session_state.issues]
                 with st.spinner("課題を生成中..."):
                     result = generate_issues(st.session_state.market_input, existing or None)
@@ -863,7 +884,7 @@ elif st.session_state.current_step == 3:
         bottom_col1, spacer, bottom_col2 = st.columns([1.2, 0.2, 1.2])
 
         with bottom_col1:
-            if st.button("市場分析に戻る", use_container_width=True, type="tertiary"):
+            if st.button("⬅️ 市場分析へ戻る", key="step3_back_bottom", use_container_width=True, type="tertiary"):
                 st.session_state.current_step = 2
                 st.rerun()
 
@@ -992,7 +1013,7 @@ elif st.session_state.current_step == 4:
         bottom_col1, spacer, bottom_col2 = st.columns([1.2, 0.2, 1.2])
 
         with bottom_col1:
-            if st.button("課題選択に戻る", use_container_width=True, type="tertiary", key="step4_back_after_generated"):
+            if st.button("⬅️ 課題選択に戻る", use_container_width=True, type="tertiary", key="step4_back_after_generated"):
                 st.session_state.current_step = 3
                 st.session_state.solutions = []
                 st.rerun()
@@ -1149,7 +1170,7 @@ elif st.session_state.current_step == 6:
     st.markdown(
         f"""
         <div class="precondition-card">
-            <div class="precondition-title">リーンキャンバス作成の前提条件</div>
+            <div class="precondition-title">前提条件</div>
             <div class="info-block"><strong>対象市場:</strong> {st.session_state.market_input}</div>
             <div class="info-block"><strong>選択課題:</strong> {issue.get('issue', '')}</div>
             <div class="info-block"><strong>選択した解決策:</strong> {sol.get('title', '')}<br>{sol.get('description', '')}</div>
@@ -1225,7 +1246,18 @@ elif st.session_state.current_step == 6:
         # セッション保存 & ナビゲーション
         col1, col2, col3 = st.columns(3)
         with col1:
-            if st.button("💾 この結果を保存", use_container_width=True):
+            if st.button("⬅️ リーンキャンバスに戻る", use_container_width=True, type="tertiary"):
+                st.session_state.current_step = 5
+                st.session_state.team_result = None
+                st.rerun()
+
+        with col2:
+            if st.button("🔄 別のチーム編成を試す", use_container_width=True):
+                st.session_state.team_result = None
+                st.rerun()
+
+        with col3:
+            if st.button("💾 この結果を保存", use_container_width=True, type="primary"):
                 log_id = save_session_log(
                     market_input=st.session_state.market_input,
                     pest_result=st.session_state.pest_result,
@@ -1236,17 +1268,6 @@ elif st.session_state.current_step == 6:
                     team_members=team_data,
                 )
                 st.success(f"✅ セッションを保存しました (ID: {log_id})")
-
-        with col2:
-            if st.button("🔄 別のチーム編成を試す", use_container_width=True):
-                st.session_state.team_result = None
-                st.rerun()
-
-        with col3:
-            if st.button("⬅️ リーンキャンバスに戻る", use_container_width=True):
-                st.session_state.current_step = 5
-                st.session_state.team_result = None
-                st.rerun()
     else:
         st.error(f"チーム編成でエラーが発生しました: {team_data.get('error', '不明')}")
         if st.button("🔄 再試行"):

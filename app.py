@@ -647,7 +647,7 @@ elif st.session_state.current_step == 4:
         gen_label = "💡 解決策を生成する" if not st.session_state.solutions else "🔄 さらに10個生成"
         if st.button(gen_label, type="primary", use_container_width=True):
             existing = [s["title"] for s in st.session_state.solutions]
-            with st.spinner("🔄 テクゼロンの強みを活かした解決策を生成＆スコアリング中..."):
+            with st.spinner("🔄 解決策を生成中..."):
                 result = generate_solutions(
                     st.session_state.market_input,
                     issue.get("issue", ""),

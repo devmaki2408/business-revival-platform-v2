@@ -225,6 +225,80 @@ p, li, label, .stMarkdown, .stCaption, .stText {
     color: #fcd34d;
 }
 
+.analysis-loading-header {
+    display: flex;
+    align-items: center;
+    gap: 0.72rem;
+    margin-bottom: 0.35rem;
+}
+
+.analysis-loading-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(191, 219, 254, 0.22);
+    border-top-color: #93c5fd;
+    border-radius: 999px;
+    animation: analysisSpin 0.9s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes analysisSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.analysis-loading-title {
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: #bfdbfe;
+    margin: 0;
+}
+
+.analysis-loading-body {
+    font-size: 1.08rem;
+    line-height: 1.8;
+    color: #e0f2fe;
+}
+
+.team-loading-card {
+    background: linear-gradient(180deg, rgba(29, 38, 67, 0.98) 0%, rgba(17, 24, 39, 0.96) 100%);
+    border: 1px solid rgba(96, 165, 250, 0.32);
+    border-radius: 20px;
+    padding: 1rem 1.1rem;
+    margin: 0.35rem 0 1rem 0;
+    box-shadow: 0 12px 28px rgba(59, 130, 246, 0.12);
+}
+
+.team-loading-header {
+    display: flex;
+    align-items: center;
+    gap: 0.72rem;
+    margin-bottom: 0.35rem;
+}
+
+.team-loading-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(191, 219, 254, 0.22);
+    border-top-color: #93c5fd;
+    border-radius: 999px;
+    animation: analysisSpin 0.9s linear infinite;
+    flex-shrink: 0;
+}
+
+.team-loading-title {
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: #bfdbfe;
+    margin: 0;
+}
+
+.team-loading-body {
+    font-size: 1.08rem;
+    line-height: 1.8;
+    color: #e0f2fe;
+}
+
 /* ===== カード風の見た目 ===== */
 .section-card {
     background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(17, 24, 39, 0.95) 100%);
@@ -281,11 +355,16 @@ input {
     border: 1px solid rgba(129, 140, 248, 0.48);
     border-radius: 16px;
     padding: 0.72rem 1.15rem;
+    min-height: 56px;
     font-weight: 800;
     color: #ede9fe;
     background: rgba(30, 41, 59, 0.96);
     box-shadow: 0 6px 16px rgba(99, 102, 241, 0.08);
     transition: 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.35;
 }
 
 .stButton > button:hover {
@@ -529,8 +608,11 @@ a.anchor-link {
     margin-bottom: 0;
 }
 
-.info-block:last-child {
-    margin-bottom: 0;
+.precondition-helper {
+    font-size: 0.98rem;
+    line-height: 1.75;
+    color: #94a3b8;
+    margin: -0.15rem 0 0.95rem 0.1rem;
 }
 
 /* 補足説明・success/info/caption系も少し読みやすくする */
@@ -673,6 +755,8 @@ if st.session_state.current_step == 1:
         label_visibility="collapsed",
     )
 
+    step1_input_error = False
+
     col1, col2 = st.columns([1, 4])
     with col1:
         if st.button("🔍 分析開始", type="primary", use_container_width=True):
@@ -681,7 +765,10 @@ if st.session_state.current_step == 1:
                 st.session_state.current_step = 2
                 st.rerun()
             else:
-                st.warning("市場・ターゲットを入力してください。")
+                step1_input_error = True
+
+    if step1_input_error:
+        st.warning("市場・ターゲットを入力してください。")
 
     # ★ テクゼロンの事業に合った入力例を提示。
     # ★ ここは「何を書けばいいか分からない」を防ぐための補助エリア。
@@ -711,31 +798,66 @@ elif st.session_state.current_step == 2:
     st.markdown('<div class="page-step-title">② 市場分析</div>', unsafe_allow_html=True)
     st.markdown(f"**対象市場:** {st.session_state.market_input}")
 
+    # まだ分析していない場合は、まず「分析中」であることを大きく明示する。
+    analysis_was_pending = not st.session_state.analysis_done
+    if analysis_was_pending:
+        st.markdown(
+            """
+            <div class="analysis-loading-card">
+                <div class="analysis-loading-header">
+                    <div class="analysis-loading-spinner"></div>
+                    <div class="analysis-loading-title">市場分析を実行中です</div>
+                </div>
+                <div class="analysis-loading-body">分析結果が表示されるまで、少々お待ちください。</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.markdown(
+            """
+            <style>
+            /* 市場分析中は、前ステップのexpander残像が見えないように一時的に非表示 */
+            [data-testid="stExpander"] {
+                display: none !important;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        pest = run_pest_analysis(st.session_state.market_input)
+        five_forces = run_five_forces_analysis(st.session_state.market_input)
+
+        st.session_state.pest_result = pest
+        st.session_state.five_forces_result = five_forces
+        st.session_state.analysis_done = True
+        st.rerun()
+
+    # 分析が始まっていた描画サイクルでは、後続UIを一切描かない。
+    if analysis_was_pending:
+        st.stop()
+
     top_action_col1, top_spacer, top_action_col2 = st.columns([1.2, 0.2, 1.2])
     with top_action_col1:
-        if st.button("⬅️ 市場を変更する", key="step2_back_top", use_container_width=True, type="tertiary"):
+        if st.button("⬅️ 市場・ターゲットを変更する", key="step2_back_top", use_container_width=True, type="tertiary"):
             st.session_state.current_step = 1
             st.session_state.analysis_done = False
             st.session_state.pest_result = None
             st.session_state.five_forces_result = None
             st.rerun()
     with top_action_col2:
-        if st.button("➡️ この分析内容で課題の探索へ進む", key="step2_next_top", type="primary", use_container_width=True):
+        if st.button(
+            "➡️ この分析内容で課題の探索へ進む",
+            key="step2_next_top",
+            type="primary",
+            use_container_width=True,
+            disabled=not st.session_state.analysis_done,
+        ):
             st.session_state.current_step = 3
             st.rerun()
 
     st.markdown("<div style='height: 0.45rem;'></div>", unsafe_allow_html=True)
-
-    # まだ分析していない場合
-    if not st.session_state.analysis_done:
-        with st.spinner("🔄 PEST分析と5つの力分析を実行中... (30秒ほどお待ちください)"):
-            pest = run_pest_analysis(st.session_state.market_input)
-            five_forces = run_five_forces_analysis(st.session_state.market_input)
-
-            st.session_state.pest_result = pest
-            st.session_state.five_forces_result = five_forces
-            st.session_state.analysis_done = True
-            st.rerun()
 
     # --- PEST分析の表示 ---
     pest = st.session_state.pest_result
@@ -785,16 +907,18 @@ elif st.session_state.current_step == 2:
 
     st.divider()
 
+    # --- 削除: 入力例を見る（テクゼロンの強みを活かせるテーマ） expander（STEP2のみ） ---
+
     bottom_col1, bottom_spacer, bottom_col2 = st.columns([1.2, 0.2, 1.2])
     with bottom_col1:
-        if st.button("⬅️ 市場を変更する", key="step2_back_bottom", use_container_width=True, type="tertiary"):
+        if st.button("⬅️ 市場・ターゲットを変更する", key="step2_back_bottom", use_container_width=True, type="tertiary"):
             st.session_state.current_step = 1
             st.session_state.analysis_done = False
             st.session_state.pest_result = None
             st.session_state.five_forces_result = None
             st.rerun()
     with bottom_col2:
-        if st.button("➡️ この分析内容で課題の探索へ進む", key="step2_next_bottom", type="primary", use_container_width=True):
+        if st.button("➡️ この分析内容で課題の探索へ進む", key="step2_next_bottom", type="primary", use_container_width=True, disabled=not st.session_state.analysis_done):
             st.session_state.current_step = 3
             st.rerun()
 
@@ -806,8 +930,19 @@ elif st.session_state.current_step == 2:
 
 elif st.session_state.current_step == 3:
     st.markdown('<div class="page-step-title">③ 課題の探索</div>', unsafe_allow_html=True)
-    st.markdown(f"**対象市場:** {st.session_state.market_input}")
-    st.markdown("AIがテクゼロンの技術資産を踏まえた課題を10個ずつ生成します。納得できるまで何度でも再生成できます。")
+    st.markdown(
+        f"""
+        <div class="precondition-card">
+            <div class="precondition-title">課題探索の前提条件</div>
+            <div class="info-block"><strong>対象市場:</strong> {st.session_state.market_input}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="precondition-helper">この市場分析結果を前提に、AIがテクゼロンの技術資産を踏まえた課題を10個ずつ生成します。納得できるまで何度でも再生成できます。</div>',
+        unsafe_allow_html=True,
+    )
 
     # ★ 初回状態では「市場分析へ戻る」と「課題を生成する」を同じ段に並べる。
     # ★ これにより、次の主操作と前のステップへの戻り操作がすぐ分かる。
@@ -815,7 +950,7 @@ elif st.session_state.current_step == 3:
         top_action_col1, top_spacer, top_action_col2 = st.columns([1.2, 0.2, 1.2])
 
         with top_action_col1:
-            if st.button("⬅️ 市場分析へ戻る", key="step3_back_top", use_container_width=True, type="tertiary"):
+            if st.button("⬅️ 市場・ターゲット分析へ戻る", key="step3_back_top", use_container_width=True, type="tertiary"):
                 st.session_state.current_step = 2
                 st.rerun()
 
@@ -884,7 +1019,7 @@ elif st.session_state.current_step == 3:
         bottom_col1, spacer, bottom_col2 = st.columns([1.2, 0.2, 1.2])
 
         with bottom_col1:
-            if st.button("⬅️ 市場分析へ戻る", key="step3_back_bottom", use_container_width=True, type="tertiary"):
+            if st.button("⬅️ 市場・ターゲット分析へ戻る", key="step3_back_bottom", use_container_width=True, type="tertiary"):
                 st.session_state.current_step = 2
                 st.rerun()
 
@@ -1050,9 +1185,17 @@ elif st.session_state.current_step == 5:
 
     sol = st.session_state.selected_solution
     issue = st.session_state.selected_issue
-    st.markdown(f"**選択した解決策:** {sol.get('title', '')}")
-    st.markdown(f"**概要:** {sol.get('description', '')}")
-    st.divider()
+    st.markdown(
+        f"""
+        <div class="precondition-card">
+            <div class="precondition-title">リーンキャンバス作成の前提条件</div>
+            <div class="info-block"><strong>対象市場:</strong> {st.session_state.market_input}</div>
+            <div class="info-block"><strong>選択課題:</strong> {issue.get('issue', '')}</div>
+            <div class="info-block"><strong>選択した解決策:</strong> {sol.get('title', '')}<br>{sol.get('description', '')}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     # リーンキャンバスを生成
     if st.session_state.lean_canvas_result is None:
@@ -1170,7 +1313,7 @@ elif st.session_state.current_step == 6:
     st.markdown(
         f"""
         <div class="precondition-card">
-            <div class="precondition-title">前提条件</div>
+            <div class="precondition-title">チーム編成の前提条件</div>
             <div class="info-block"><strong>対象市場:</strong> {st.session_state.market_input}</div>
             <div class="info-block"><strong>選択課題:</strong> {issue.get('issue', '')}</div>
             <div class="info-block"><strong>選択した解決策:</strong> {sol.get('title', '')}<br>{sol.get('description', '')}</div>
@@ -1179,15 +1322,42 @@ elif st.session_state.current_step == 6:
         unsafe_allow_html=True,
     )
 
+    st.markdown(
+        f"""
+        <div class="precondition-card">
+            <div class="precondition-title">チーム編成の前提条件</div>
+            <div class="info-block"><strong>対象市場:</strong> {st.session_state.market_input}</div>
+            <div class="info-block"><strong>選択課題:</strong> {issue.get('issue', '')}</div>
+            <div class="info-block"><strong>選択した解決策:</strong> {sol.get('title', '')}<br>{sol.get('description', '')}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("<div style='height: 11rem;'></div>", unsafe_allow_html=True)
+
     # チーム編成を実行
     if st.session_state.team_result is None:
-        with st.spinner("🔄 テクゼロン社員から最適な4人チームを選抜中..."):
-            team_data = build_team_for_solution(
-                sol.get("title", ""),
-                sol.get("description", ""),
-            )
-            st.session_state.team_result = team_data
-            st.rerun()
+        st.markdown(
+            """
+            <div class="team-loading-card">
+                <div class="team-loading-header">
+                    <div class="team-loading-spinner"></div>
+                    <div class="team-loading-title">チーム編成を実行中です</div>
+                </div>
+                <div class="team-loading-body">テクゼロン社員の強み・役割・相性をもとに、最適な4人チームを選抜しています。少々お待ちください。</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        team_data = build_team_for_solution(
+            sol.get("title", ""),
+            sol.get("description", ""),
+        )
+        st.session_state.team_result = team_data
+        st.rerun()
+
 
     team_data = st.session_state.team_result
 

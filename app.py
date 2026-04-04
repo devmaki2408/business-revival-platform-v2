@@ -78,17 +78,88 @@ h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.02em;
 }
 
-p, li, label, .stMarkdown, .stCaption, .stText {
-    color: #d1d5db;
-    font-size: 1.22rem;
-    line-height: 1.95;
+.page-step-title {
+    font-size: 1.95rem;
+    line-height: 1.25;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0.1rem 0 0.9rem 0;
 }
 
-/* StreamlitのMarkdown本文・箇条書きも大きめに統一 */
+p, li, label, .stMarkdown, .stCaption, .stText {
+    color: #d1d5db;
+    font-size: 1.12rem;
+    line-height: 1.85;
+}
+
+.issue-card {
+    padding: 0.7rem 0.9rem 0.75rem 0.9rem;
+    border-radius: 16px;
+    border: 1px solid transparent;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    cursor: pointer;
+}
+
+.issue-card:hover {
+    transform: translateY(-2px);
+    background: rgba(99, 102, 241, 0.04);
+    border: 1px solid rgba(129, 140, 248, 0.18);
+    box-shadow: 0 8px 22px rgba(99, 102, 241, 0.06);
+}
+
+.issue-card.selected {
+    padding: 0.7rem 0.9rem 0.75rem 0.9rem;
+    background: rgba(99, 102, 241, 0.10);
+    border: 1px solid rgba(129, 140, 248, 0.34);
+    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.10);
+}
+
+.issue-selected-note {
+    display: inline-block;
+    margin-top: 0.55rem;
+    padding: 0.32rem 0.62rem;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.14);
+    border: 1px solid rgba(129, 140, 248, 0.28);
+    color: #c4b5fd;
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+.issue-title {
+    font-size: 1.22rem;
+    line-height: 1.7;
+    color: #f8fafc;
+    font-weight: 800;
+    margin-bottom: 0.2rem;
+}
+
+.issue-number {
+    display: inline-block;
+    min-width: 2.4rem;
+    color: #a5b4fc;
+    font-weight: 800;
+    margin-right: 0.35rem;
+}
+
+.issue-persona {
+    font-size: 1.08rem;
+    line-height: 1.7;
+    color: #cbd5e1;
+    margin-bottom: 0.3rem;
+}
+
+.issue-detail {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #cbd5e1;
+}
+
+/* StreamlitのMarkdown本文・箇条書きも少し大きめに統一 */
 [data-testid="stMarkdownContainer"] p,
 [data-testid="stMarkdownContainer"] li {
-    font-size: 1.22rem !important;
-    line-height: 1.95 !important;
+    font-size: 1.12rem !important;
+    line-height: 1.85 !important;
 }
 
 /* ===== ヒーローエリア用 ===== */
@@ -126,10 +197,10 @@ p, li, label, .stMarkdown, .stCaption, .stText {
 }
 
 .hero-desc {
-    font-size: 1.22rem;
-    line-height: 1.95;
+    font-size: 1.12rem;
+    line-height: 1.85;
     color: #cbd5e1;
-    max-width: 820px;
+    max-width: 760px;
     margin-bottom: 0.35rem;
 }
 
@@ -172,8 +243,8 @@ p, li, label, .stMarkdown, .stCaption, .stText {
 
 .section-card p {
     margin-bottom: 0.2rem;
-    font-size: 1.22rem;
-    line-height: 1.95;
+    font-size: 1.12rem;
+    line-height: 1.85;
 }
 
 .section-card.step1-card {
@@ -205,22 +276,35 @@ input {
    そのため、デフォルトボタン（戻る・補助操作）は落ち着いた見た目、
    type="primary" のボタン（生成・次へ進む）は強調表示に分ける。 */
 
-/* デフォルトボタン = 戻る / 再試行 / 補助操作 */
+/* デフォルトボタン = 補助操作（追加生成など） */
 .stButton > button {
-    border: 1px solid rgba(129, 140, 248, 0.26);
+    border: 1px solid rgba(129, 140, 248, 0.48);
     border-radius: 16px;
     padding: 0.72rem 1.15rem;
     font-weight: 800;
-    color: #e5e7eb;
-    background: rgba(15, 23, 42, 0.88);
-    box-shadow: none;
+    color: #ede9fe;
+    background: rgba(30, 41, 59, 0.96);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.08);
     transition: 0.2s ease;
 }
 
 .stButton > button:hover {
     transform: translateY(-1px);
-    background: rgba(30, 41, 59, 0.96);
-    border-color: rgba(129, 140, 248, 0.42);
+    background: rgba(51, 65, 85, 0.98);
+    border-color: rgba(129, 140, 248, 0.68);
+}
+
+/* tertiary = 戻るなど、さらに控えめなボタン */
+.stButton > button[kind="tertiary"] {
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    color: #cbd5e1;
+    background: rgba(15, 23, 42, 0.70);
+    box-shadow: none;
+}
+
+.stButton > button[kind="tertiary"]:hover {
+    background: rgba(30, 41, 59, 0.82);
+    border-color: rgba(148, 163, 184, 0.28);
 }
 
 /* 主要ボタン = 生成 / 分析開始 / 次へ進む */
@@ -238,8 +322,40 @@ input {
 /* ===== Expander / Tabs / Metric の見た目調整 ===== */
 .streamlit-expanderHeader {
     color: #f8fafc;
-    font-weight: 700;
-    font-size: 1.18rem;
+    font-weight: 800;
+    font-size: 1.12rem;
+    line-height: 1.55;
+}
+
+/* Streamlit実DOM向け: expanderの見出し行そのものを強調 */
+[data-testid="stExpander"] details {
+    border: 1px solid rgba(99, 102, 241, 0.22);
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.76);
+    overflow: hidden;
+}
+
+[data-testid="stExpander"] details summary {
+    padding: 0.72rem 0.9rem;
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.92) 0%, rgba(17, 24, 39, 0.92) 100%);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.14);
+}
+
+[data-testid="stExpander"] details summary:hover {
+    background: linear-gradient(180deg, rgba(51, 65, 85, 0.98) 0%, rgba(30, 41, 59, 0.96) 100%);
+}
+
+[data-testid="stExpander"] details summary p {
+    color: #f8fafc !important;
+    font-size: 1.18rem !important;
+    font-weight: 800 !important;
+    line-height: 1.55 !important;
+    margin: 0 !important;
+}
+
+[data-testid="stExpander"] details summary svg {
+    width: 1rem;
+    height: 1rem;
 }
 
 [data-baseweb="tab-list"] {
@@ -261,15 +377,7 @@ button[role="tab"][aria-selected="true"] {
     background: rgba(15, 23, 42, 0.8);
     border: 1px solid rgba(99, 102, 241, 0.18);
     border-radius: 18px;
-    padding: 0.85rem;
-}
-
-[data-testid="stMetricLabel"] {
-    font-size: 1.05rem !important;
-}
-
-[data-testid="stMetricValue"] {
-    font-size: 1.18rem !important;
+    padding: 0.75rem;
 }
 
 /* ===== サイドバー調整 ===== */
@@ -316,23 +424,125 @@ a.anchor-link {
     display: none !important;
 }
 
-/* STEP4以降の「対象市場 / 選択した課題 / ターゲット」表示を少し見やすくする */
+/* STEP4以降の前提条件カードを見やすくする */
+.precondition-card {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(17, 24, 39, 0.95) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.24);
+    border-radius: 20px;
+    padding: 1rem 1.15rem;
+    margin: 0.25rem 0 0.9rem 0;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.precondition-title {
+    display: block;
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: #c4b5fd;
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.01em;
+}
+
 .info-block {
-    font-size: 1.28rem;
-    line-height: 2.0;
-    margin-bottom: 0.5rem;
+    font-size: 1.18rem;
+    line-height: 1.9;
+    margin-bottom: 0.45rem;
+}
+
+.solution-rank-line {
+    font-size: 1.18rem;
+    font-weight: 800;
+    line-height: 1.55;
+    color: #f8fafc;
+    margin: 0;
+}
+
+.rank-badge {
+    color: #fde68a;
+    font-weight: 900;
+}
+
+.score-card {
+    background: rgba(15, 23, 42, 0.82);
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    border-radius: 18px;
+    padding: 0.9rem 0.8rem 0.8rem 0.8rem;
+    min-height: 138px;
+}
+
+.score-card-title {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 0.55rem;
+    line-height: 1.4;
+}
+
+.score-card-stars {
+    font-size: 1.75rem;
+    line-height: 1.15;
+    color: #f8fafc;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.45rem;
+    white-space: nowrap;
+}
+
+.score-card-reason {
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: #cbd5e1;
+}
+
+.lean-grid-card {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(17, 24, 39, 0.92) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    border-radius: 20px;
+    padding: 1rem 1rem 0.95rem 1rem;
+    min-height: 260px;
+    margin-bottom: 0.9rem;
+}
+
+.lean-card-title {
+    font-size: 1.18rem;
+    line-height: 1.4;
+    font-weight: 800;
+    color: #f8fafc;
+    margin-bottom: 0.7rem;
+}
+
+.lean-card-body {
+    font-size: 1.08rem;
+    line-height: 1.85;
+    color: #d1d5db;
+}
+
+.lean-card-body ul {
+    margin: 0.2rem 0 0 1.1rem;
+    padding: 0;
+}
+
+.lean-card-body li {
+    margin-bottom: 0.38rem;
+}
+
+.info-block:last-child {
+    margin-bottom: 0;
+}
+
+.info-block:last-child {
+    margin-bottom: 0;
 }
 
 /* 補足説明・success/info/caption系も少し読みやすくする */
 [data-testid="stAlertContainer"] {
-    font-size: 1.16rem;
-    line-height: 1.9;
+    font-size: 1.08rem;
+    line-height: 1.8;
 }
 
 [data-testid="stAlertContainer"] p,
 [data-testid="stAlertContainer"] li {
-    font-size: 1.16rem !important;
-    line-height: 1.9 !important;
+    font-size: 1.08rem !important;
+    line-height: 1.8 !important;
 }
 
 /* ===== 区切り線を少し柔らかくする ===== */
@@ -498,7 +708,7 @@ if st.session_state.current_step == 1:
 # ★ st.spinner でローディング表示、st.tabs でタブ切り替え
 
 elif st.session_state.current_step == 2:
-    st.header("② 市場分析")
+    st.markdown('<div class="page-step-title">② 市場分析</div>', unsafe_allow_html=True)
     st.markdown(f"**対象市場:** {st.session_state.market_input}")
 
     # まだ分析していない場合
@@ -580,52 +790,99 @@ elif st.session_state.current_step == 2:
 # ★ ボタンで AI 呼び出し → 結果をリスト表示 → 選択ボタンで次へ
 
 elif st.session_state.current_step == 3:
-    st.header("③ 課題の探索")
+    st.markdown('<div class="page-step-title">③ 課題の探索</div>', unsafe_allow_html=True)
     st.markdown(f"**対象市場:** {st.session_state.market_input}")
     st.markdown("AIがテクゼロンの技術資産を踏まえた課題を10個ずつ生成します。納得できるまで何度でも再生成できます。")
 
-    col1, col2 = st.columns([1, 3])
-    with col1:
-        generate_label = "🔍 課題を生成する" if not st.session_state.issues else "🔄 さらに10個生成"
-        if st.button(generate_label, type="primary", use_container_width=True):
-            existing = [iss["issue"] for iss in st.session_state.issues]
-            with st.spinner("🔄 課題を生成中..."):
-                result = generate_issues(st.session_state.market_input, existing or None)
+    # ★ 初回生成ボタンは上に置き、一覧表示後の「さらに10個生成」は下に置く。
+    # ★ 一覧を読んだ後に追加生成する方が、ユーザーの思考の流れに合うため。
+    if not st.session_state.issues:
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            if st.button("課題を生成する", type="primary", use_container_width=True):
+                existing = [iss["issue"] for iss in st.session_state.issues]
+                with st.spinner("課題を生成中..."):
+                    result = generate_issues(st.session_state.market_input, existing or None)
 
-            if "error" not in result:
-                new_issues = result.get("issues", [])
-                start_id = len(st.session_state.issues) + 1
-                for i, iss in enumerate(new_issues):
-                    iss["id"] = start_id + i
-                st.session_state.issues.extend(new_issues)
-                st.rerun()
-            else:
-                st.error(f"エラー: {result['error']}")
+                if "error" not in result:
+                    new_issues = result.get("issues", [])
+                    start_id = len(st.session_state.issues) + 1
+                    for i, iss in enumerate(new_issues):
+                        iss["id"] = start_id + i
+                    st.session_state.issues.extend(new_issues)
+                    st.rerun()
+                else:
+                    st.error(f"エラー: {result['error']}")
 
     if st.session_state.issues:
         st.subheader(f"📋 課題一覧（{len(st.session_state.issues)}件）")
 
+        selected_issue_id = st.session_state.selected_issue.get("id") if st.session_state.selected_issue else None
+
         for iss in st.session_state.issues:
             with st.container():
-                col_a, col_b = st.columns([5, 1])
-                with col_a:
-                    st.markdown(
-                        f"**#{iss['id']}** | 🎯 {iss.get('target', '')} | "
-                        f"📌 {iss.get('issue', '')}"
-                    )
-                    st.caption(iss.get("detail", ""))
-                with col_b:
-                    if st.button("✅ 選択", key=f"sel_issue_{iss['id']}"):
-                        st.session_state.selected_issue = iss
-                        st.session_state.current_step = 4
-                        st.rerun()
-                st.divider()
-    else:
-        st.info("「課題を生成する」ボタンを押して、課題を生成してください。")
+                # ★ カードを比較しながら選べるように、
+                #   ここでは即遷移せず「選択状態だけ」を保持する。
+                card_class = "issue-card selected" if selected_issue_id == iss["id"] else "issue-card"
 
-    if st.button("⬅️ 市場分析に戻る"):
-        st.session_state.current_step = 2
-        st.rerun()
+                st.markdown(
+                    f"""
+                    <div class="{card_class}">
+                        <div class="issue-title">
+                            <span class="issue-number">{iss['id']}.</span>課題: {iss.get('issue', '')}
+                        </div>
+                        <div class="issue-persona">ペルソナ: {iss.get('target', '')}</div>
+                        <div class="issue-detail">{iss.get('detail', '')}</div>
+                        {"<div class='issue-selected-note'>選択中</div>" if selected_issue_id == iss["id"] else ""}
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+                action_col1, action_col2 = st.columns([1.7, 4.3])
+
+                with action_col1:
+                    if selected_issue_id == iss["id"]:
+                        # ★ 選択済みカードの直下にある「次へ進む」は、その場の主操作なので primary に戻す。
+                        # ★ 代わりに「さらに10個生成」の優先度を落として、誤操作を減らす。
+                        if st.button("この課題を選ぶ", key=f"go_issue_{iss['id']}", use_container_width=True, type="primary"):
+                            st.session_state.current_step = 4
+                            st.rerun()
+                    else:
+                        if st.button("選択", key=f"sel_issue_{iss['id']}", use_container_width=True):
+                            st.session_state.selected_issue = iss
+                            st.rerun()
+
+                with action_col2:
+                    st.empty()
+
+                st.divider()
+
+        # ★ カードで選択状態を保持したうえで、下部のCTAから明示的に次へ進む。
+        # ★ これにより、複数カードを比較してから決めやすくする。
+        bottom_col1, spacer, bottom_col2 = st.columns([1.2, 0.2, 1.2])
+
+        with bottom_col1:
+            if st.button("市場分析に戻る", use_container_width=True, type="tertiary"):
+                st.session_state.current_step = 2
+                st.rerun()
+
+        with bottom_col2:
+            # ★ 「さらに10個生成」は補助操作なので secondary にして主張を下げる。
+            if st.button("🔄 さらに10個生成", use_container_width=True):
+                existing = [iss["issue"] for iss in st.session_state.issues]
+                with st.spinner("課題を生成中..."):
+                    result = generate_issues(st.session_state.market_input, existing or None)
+
+                if "error" not in result:
+                    new_issues = result.get("issues", [])
+                    start_id = len(st.session_state.issues) + 1
+                    for i, iss in enumerate(new_issues):
+                        iss["id"] = start_id + i
+                    st.session_state.issues.extend(new_issues)
+                    st.rerun()
+                else:
+                    st.error(f"エラー: {result['error']}")
 
 
 # ============================================================
@@ -634,47 +891,70 @@ elif st.session_state.current_step == 3:
 # ★ rank_solutions() でソート → st.expander + st.columns でスコア表示
 
 elif st.session_state.current_step == 4:
-    st.header("④ 解決策の生成")
+    st.markdown('<div class="page-step-title">④ 解決策の生成</div>', unsafe_allow_html=True)
 
     issue = st.session_state.selected_issue
-    st.markdown(f'<div class="info-block"><strong>対象市場:</strong> {st.session_state.market_input}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="info-block"><strong>選択した課題:</strong> {issue.get("issue", "")}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="info-block"><strong>ターゲット:</strong> {issue.get("target", "")} — {issue.get("detail", "")}</div>', unsafe_allow_html=True)
-    st.divider()
+    st.markdown(
+        f"""
+        <div class="precondition-card">
+            <div class="precondition-title">解決策生成の前提条件</div>
+            <div class="info-block"><strong>対象市場:</strong> {st.session_state.market_input}</div>
+            <div class="info-block"><strong>選択課題:</strong> {issue.get("issue", "")}</div>
+            <div class="info-block"><strong>ペルソナ:</strong> {issue.get("target", "")}<br>{issue.get("detail", "")}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    col1, col2 = st.columns([1, 3])
-    with col1:
-        gen_label = "💡 解決策を生成する" if not st.session_state.solutions else "🔄 さらに10個生成"
-        if st.button(gen_label, type="primary", use_container_width=True):
-            existing = [s["title"] for s in st.session_state.solutions]
-            with st.spinner("🔄 解決策を生成中..."):
-                result = generate_solutions(
-                    st.session_state.market_input,
-                    issue.get("issue", ""),
-                    issue.get("target", ""),
-                    existing or None,
-                )
+    # ★ 初回状態では「戻る」と「解決策を生成する」を同じ横幅・同じ段に並べる。
+    # ★ これにより、どちらが主要操作でどちらが補助操作かが見やすくなる。
+    if not st.session_state.solutions:
+        top_action_col1, spacer, top_action_col2 = st.columns([1.2, 0.2, 1.2])
 
-            if "error" not in result:
-                new_sols = result.get("solutions", [])
-                start_id = len(st.session_state.solutions) + 1
-                for i, s in enumerate(new_sols):
-                    s["id"] = start_id + i
-                st.session_state.solutions.extend(new_sols)
+        with top_action_col1:
+            if st.button("課題選択に戻る", use_container_width=True, type="tertiary", key="step4_back_initial"):
+                st.session_state.current_step = 3
+                st.session_state.solutions = []
                 st.rerun()
-            else:
-                st.error(f"エラー: {result['error']}")
+
+        with top_action_col2:
+            if st.button("💡 解決策を生成する", type="primary", use_container_width=True, key="step4_generate_initial"):
+                existing = [s["title"] for s in st.session_state.solutions]
+                with st.spinner("🔄 解決策を生成中..."):
+                    result = generate_solutions(
+                        st.session_state.market_input,
+                        issue.get("issue", ""),
+                        issue.get("target", ""),
+                        existing or None,
+                    )
+
+                if "error" not in result:
+                    new_sols = result.get("solutions", [])
+                    start_id = len(st.session_state.solutions) + 1
+                    for i, s in enumerate(new_sols):
+                        s["id"] = start_id + i
+                    st.session_state.solutions.extend(new_sols)
+                    st.rerun()
+                else:
+                    st.error(f"エラー: {result['error']}")
 
     if st.session_state.solutions:
         ranked = rank_solutions(st.session_state.solutions)
-        st.subheader(f"🏆 解決策ランキング（{len(ranked)}件）")
+        st.markdown(
+            f'<div class="page-step-title" style="font-size:2.05rem; margin-top:0.2rem; margin-bottom:0.8rem;">🏆 解決策ランキング（{len(ranked)}件）</div>',
+            unsafe_allow_html=True,
+        )
 
         for sol in ranked:
             scoring = sol.get("scoring", {})
             total = scoring.get("total", 0)
 
+            rank_header = (
+                f"{sol['rank']}位 | ⭐ {total}/25 | {sol.get('title', '')} | 🛠 {sol.get('tech_used', '')}"
+            )
+
             with st.expander(
-                f"**#{sol['rank']}位** | ⭐ {total}/25 | {sol.get('title', '')} | 🛠 {sol.get('tech_used', '')}",
+                rank_header,
                 expanded=(sol["rank"] <= 3),
             ):
                 st.markdown(sol.get("description", ""))
@@ -687,22 +967,56 @@ elif st.session_state.current_step == 4:
                     axis = scoring.get(key, {})
                     with score_cols[idx]:
                         s = int(axis.get("score", 0))
-                        st.metric(label, f"{'★' * s}{'☆' * (5-s)} ({s}/5)")
-                        st.caption(axis.get("reason", ""))
+                        stars = f"{'★' * s}{'☆' * (5-s)}"
+                        st.markdown(
+                            f"""
+                            <div class="score-card">
+                                <div class="score-card-title">{label}</div>
+                                <div class="score-card-stars">{stars}</div>
+                                <div class="score-card-reason">{axis.get('reason', '')}</div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
+                        )
 
                 st.divider()
 
-                if st.button("✅ この解決策でリーンキャンバスへ", key=f"sel_sol_{sol['id']}"):
+                if st.button("✅ この解決策でリーンキャンバスへ", key=f"sel_sol_{sol['id']}", type="primary", use_container_width=True):
                     st.session_state.selected_solution = sol
                     st.session_state.current_step = 5
                     st.rerun()
     else:
-        st.info("「解決策を生成する」ボタンを押してください。")
+        pass
 
-    if st.button("⬅️ 課題選択に戻る"):
-        st.session_state.current_step = 3
-        st.session_state.solutions = []
-        st.rerun()
+    if st.session_state.solutions:
+        bottom_col1, spacer, bottom_col2 = st.columns([1.2, 0.2, 1.2])
+
+        with bottom_col1:
+            if st.button("課題選択に戻る", use_container_width=True, type="tertiary", key="step4_back_after_generated"):
+                st.session_state.current_step = 3
+                st.session_state.solutions = []
+                st.rerun()
+
+        with bottom_col2:
+            if st.button("🔄 さらに10個生成", use_container_width=True, key="step4_generate_more"):
+                existing = [s["title"] for s in st.session_state.solutions]
+                with st.spinner("🔄 解決策を生成中..."):
+                    result = generate_solutions(
+                        st.session_state.market_input,
+                        issue.get("issue", ""),
+                        issue.get("target", ""),
+                        existing or None,
+                    )
+
+                if "error" not in result:
+                    new_sols = result.get("solutions", [])
+                    start_id = len(st.session_state.solutions) + 1
+                    for i, s in enumerate(new_sols):
+                        s["id"] = start_id + i
+                    st.session_state.solutions.extend(new_sols)
+                    st.rerun()
+                else:
+                    st.error(f"エラー: {result['error']}")
 
 
 # ============================================================
@@ -711,7 +1025,7 @@ elif st.session_state.current_step == 4:
 # ★ AIが生成した9ブロックのリーンキャンバスを表示
 
 elif st.session_state.current_step == 5:
-    st.header("⑤ リーンキャンバス")
+    st.markdown('<div class="page-step-title">⑤ リーンキャンバス</div>', unsafe_allow_html=True)
 
     sol = st.session_state.selected_solution
     issue = st.session_state.selected_issue
@@ -828,12 +1142,21 @@ elif st.session_state.current_step == 5:
 # ★ build_team_for_solution() → メンバー横並び表示 → MBTI相性コメント
 
 elif st.session_state.current_step == 6:
-    st.header("⑥ 最適チーム編成")
+    st.markdown('<div class="page-step-title">⑥ 最適チーム編成</div>', unsafe_allow_html=True)
 
     sol = st.session_state.selected_solution
-    st.markdown(f"**選択した解決策:** {sol.get('title', '')}")
-    st.markdown(f"**概要:** {sol.get('description', '')}")
-    st.divider()
+    issue = st.session_state.selected_issue
+    st.markdown(
+        f"""
+        <div class="precondition-card">
+            <div class="precondition-title">リーンキャンバス作成の前提条件</div>
+            <div class="info-block"><strong>対象市場:</strong> {st.session_state.market_input}</div>
+            <div class="info-block"><strong>選択課題:</strong> {issue.get('issue', '')}</div>
+            <div class="info-block"><strong>選択した解決策:</strong> {sol.get('title', '')}<br>{sol.get('description', '')}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     # チーム編成を実行
     if st.session_state.team_result is None:

@@ -48,7 +48,7 @@ from ranking import (
 # ★ set_page_config はスクリプトの最初に1回だけ呼ぶ
 
 st.set_page_config(
-    page_title="テクゼロン 人財駆動型・企業再興プラットフォーム",
+    page_title="テクゼロン 新規事業設計支援アプリ",
     page_icon="🚀",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -84,6 +84,10 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 800;
     color: #f8fafc;
     margin: 0.1rem 0 0.9rem 0;
+}
+
+.step1-help {
+    margin: 0 0 0.95rem 0;
 }
 
 p, li, label, .stMarkdown, .stCaption, .stText {
@@ -261,12 +265,27 @@ p, li, label, .stMarkdown, .stCaption, .stText {
 }
 
 .team-loading-card {
+    position: fixed;
+    left: calc(50% + 135px);
+    bottom: 10.2rem;
+    transform: translateX(-50%);
+    width: min(920px, calc(100vw - 20rem));
+    max-width: 920px;
+    z-index: 9999;
     background: linear-gradient(180deg, rgba(29, 38, 67, 0.98) 0%, rgba(17, 24, 39, 0.96) 100%);
     border: 1px solid rgba(96, 165, 250, 0.32);
     border-radius: 20px;
     padding: 1rem 1.1rem;
-    margin: 0.35rem 0 1rem 0;
-    box-shadow: 0 12px 28px rgba(59, 130, 246, 0.12);
+    margin: 0;
+    box-shadow: 0 12px 28px rgba(59, 130, 246, 0.18);
+}
+
+@media (max-width: 1100px) {
+    .team-loading-card {
+        left: 50%;
+        width: calc(100vw - 3rem);
+        max-width: none;
+    }
 }
 
 .team-loading-header {
@@ -332,17 +351,44 @@ p, li, label, .stMarkdown, .stCaption, .stText {
 }
 
 /* ===== 入力欄の見た目 ===== */
-div[data-baseweb="input"] > div {
+/* ===== 入力欄の見た目 ===== */
+/* ===== 入力欄の見た目 ===== */
+[data-testid="stTextInput"] {
+    margin-bottom: 0.38rem;
+}
+/* STEP1の主ボタンだけを少し上に寄せる */
+.step1-primary-button {
+    margin-top: -1.5rem;
+    margin-bottom: 0.35rem;
+}
+
+[data-testid="stTextInput"] [data-baseweb="input"] {
     background-color: rgba(15, 23, 42, 0.98);
     border: 1px solid rgba(129, 140, 248, 0.42);
     border-radius: 18px;
-    padding: 0.95rem 0.75rem;
+    min-height: 56px;
     box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.06);
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-input {
+[data-testid="stTextInput"] [data-baseweb="input"] > div {
+    min-height: 56px;
+    padding: 0 0.9rem;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+[data-testid="stTextInput"] input {
     color: #f8fafc !important;
     font-size: 1.15rem !important;
+    line-height: 1.35 !important;
+    height: auto !important;
+    min-height: 1.4rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
 }
 
 /* ===== ボタンの見た目 ===== */
@@ -354,8 +400,8 @@ input {
 .stButton > button {
     border: 1px solid rgba(129, 140, 248, 0.48);
     border-radius: 16px;
-    padding: 0.72rem 1.15rem;
-    min-height: 56px;
+    padding: 0.9rem 1.15rem;
+    min-height: 62px;
     font-weight: 800;
     color: #ede9fe;
     background: rgba(30, 41, 59, 0.96);
@@ -593,7 +639,7 @@ a.anchor-link {
     font-size: 1.2rem;
     font-weight: 800;
     color: #f8fafc;
-    margin-bottom: 0.5rem;
+    margin: 0 0 0.35rem 0;
 }
 
 .lean-card-body {
@@ -648,10 +694,8 @@ st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 # ★ 今回は画面上の案内用なので、環境変数の有無で判定する。
 OPENAI_CONNECTED = bool(os.getenv("OPENAI_API_KEY"))
 
-# DB 初期化（アプリ起動時の初回1回だけ実行に変更）
-if "db_initialized" not in st.session_state:
-    init_db()
-    st.session_state.db_initialized = True
+# DB 初期化
+init_db()
 
 # ---------- セッション状態の初期化 ---------- #
 # ★ session_state は辞書的に使える。ページ遷移しても値が残る。
@@ -679,7 +723,7 @@ for key, default in DEFAULT_STATE.items():
 # ★ with st.sidebar: でサイドバー内にUI要素を配置
 
 with st.sidebar:
-    st.markdown("## 🧭 ナビゲーション")
+    st.markdown("## 🧭 仮説設計フロー")
 
     steps = [
         "① 市場・ターゲット入力",
@@ -706,7 +750,7 @@ with st.sidebar:
         st.rerun()
 
     st.divider()
-    st.caption("テクゼロン 人財駆動型・企業再興プラットフォーム v0.2")
+    st.caption("テクゼロン 新規事業設計支援アプリ v0.2")
 
 
 # ---------- （わーちゃん変更）メインヘッダー ---------- #
@@ -750,7 +794,7 @@ if st.session_state.current_step == 1:
     #   HTMLで見出しを描画して余計なリンク表示を避ける。
     st.markdown(
         """
-        <div class="step1-heading">① 市場・ターゲットを入力</div>
+        <div class="page-step-title">① 市場・ターゲットを入力</div>
         <div class="step1-help">分析したい市場やターゲットを入力してください。</div>
         """,
         unsafe_allow_html=True,
@@ -786,6 +830,7 @@ if st.session_state.current_step == 1:
 
     col1, col2 = st.columns([1, 4])
     with col1:
+        st.markdown('<div class="step1-primary-button">', unsafe_allow_html=True)
         if st.button("🔍 分析開始", type="primary", use_container_width=True):
             if market.strip():
                 st.session_state.market_input = market.strip()
@@ -793,9 +838,11 @@ if st.session_state.current_step == 1:
                 st.rerun()
             else:
                 step1_input_error = True
+        st.markdown('</div>', unsafe_allow_html=True)
 
     if step1_input_error:
         st.warning("市場・ターゲットを入力してください。")
+    st.markdown("<div style='height: 0.25rem;'></div>", unsafe_allow_html=True)
 
     # ★ テクゼロンの事業に合った入力例を提示。
     # ★ ここは「何を書けばいいか分からない」を防ぐための補助エリア。
@@ -1151,14 +1198,15 @@ elif st.session_state.current_step == 4:
             scoring = sol.get("scoring", {})
             total = scoring.get("total", 0)
 
-            rank_header = (
-                f"{sol['rank']}位 | ⭐ {total}/25 | {sol.get('title', '')} | 🛠 {sol.get('tech_used', '')}"
-            )
+            rank_header = f"{sol['rank']}位｜{sol.get('title', '')}　⭐{total}/25"
 
             with st.expander(
                 rank_header,
                 expanded=(sol["rank"] <= 3),
             ):
+                tech_used = sol.get("tech_used", "")
+                if tech_used:
+                    st.caption(f"活用技術: {tech_used}")
                 st.markdown(sol.get("description", ""))
 
                 st.markdown("---")
@@ -1381,21 +1429,8 @@ elif st.session_state.current_step == 6:
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        f"""
-        <div class="precondition-card">
-            <div class="precondition-title">チーム編成の前提条件</div>
-            <div class="info-block"><strong>対象市場:</strong> {st.session_state.market_input}</div>
-            <div class="info-block"><strong>選択課題:</strong> {issue.get('issue', '')}</div>
-            <div class="info-block"><strong>選択した解決策:</strong> {sol.get('title', '')}<br>{sol.get('description', '')}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.markdown("<div style='height: 0.15rem;'></div>", unsafe_allow_html=True)
 
-    st.markdown("<div style='height: 11rem;'></div>", unsafe_allow_html=True)
-
-    # チーム編成を実行
     if st.session_state.team_result is None:
         st.markdown(
             """
@@ -1423,7 +1458,7 @@ elif st.session_state.current_step == 6:
     if team_data and "error" not in team_data:
         team = team_data.get("team", [])
 
-        st.markdown('<div class="sub-section-title">👥 プロジェクトチーム</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sub-section-title" style="margin-top:-0.1rem;">👥 プロジェクトチーム</div>', unsafe_allow_html=True)
 
         # ★ st.columns でチームメンバーを横並び表示
         member_cols = st.columns(len(team)) if team else []

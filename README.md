@@ -5,7 +5,7 @@
 株式会社テクゼロン（産業機械製造）の社内新規事業創出を支援するAIプラットフォームです。
 4人チームの学習用プロジェクトとして開発しています。
 
-**デプロイ URL:** https://business-revival-platform-7unkdzhfp5eo2hjiziravj.streamlit.app/
+**デプロイ URL:** https://business-revival-platform-v2-6ikrkm5mx4tep3dqd6gnls.streamlit.app/
 
 ---
 

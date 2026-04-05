@@ -30,8 +30,8 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # 使用するモデル（gpt-4o が高精度、gpt-4o-mini がコスト安）
-# MODEL = "gpt-4o"
 MODEL = "gpt-4o-mini"
+
 
 # ============================================================
 # テクゼロン社の企業コンテキスト（全プロンプト共通で使う前提情報）

@@ -79,7 +79,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .page-step-title {
-    font-size: 1.95rem;
+    font-size: 1.45rem;
     line-height: 1.25;
     font-weight: 800;
     color: #f8fafc;
@@ -181,7 +181,7 @@ p, li, label, .stMarkdown, .stCaption, .stText {
 }
 
 .hero-title {
-    font-size: clamp(1.45rem, 3.2vw, 2.55rem);
+    font-size: clamp(1.55rem, 3.4vw, 2.7rem);
     line-height: 1.15;
     font-weight: 850;
     color: #f8fafc;
@@ -582,11 +582,18 @@ a.anchor-link {
 }
 
 .lean-card-title {
-    font-size: 1.18rem;
+    font-size: 1.05rem;
     line-height: 1.4;
     font-weight: 800;
     color: #f8fafc;
     margin-bottom: 0.7rem;
+}
+
+.sub-section-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin-bottom: 0.5rem;
 }
 
 .lean-card-body {
@@ -759,6 +766,24 @@ if st.session_state.current_step == 1:
 
     step1_input_error = False
 
+    # STEP1 の入力例 expander だけ、見出しを少し小さく・太字なしにする
+    # ※ このCSSは STEP1 が表示されているときだけ描画されるため、他ステップの expander には影響しない
+    st.markdown(
+        """
+        <style>
+        [data-testid="stExpander"] details summary p {
+            font-size: 0.96rem !important;
+            font-weight: 500 !important;
+            line-height: 1.45 !important;
+        }
+        .stButton > button[kind="primary"] {
+            font-weight: 900 !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     col1, col2 = st.columns([1, 4])
     with col1:
         if st.button("🔍 分析開始", type="primary", use_container_width=True):
@@ -798,6 +823,25 @@ if st.session_state.current_step == 1:
 
 elif st.session_state.current_step == 2:
     st.markdown('<div class="page-step-title">② 市場分析</div>', unsafe_allow_html=True)
+
+    st.markdown(
+        """
+        <style>
+        [data-testid="stExpander"] details summary p {
+            color: #f8fafc !important;
+            font-size: 1.18rem !important;
+            font-weight: 800 !important;
+            line-height: 1.55 !important;
+            margin: 0 !important;
+        }
+        .stButton > button[kind="primary"] {
+            font-weight: 800 !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     st.markdown(f"**対象市場:** {st.session_state.market_input}")
 
     # まだ分析していない場合は、まず「分析中」であることを大きく明示する。
@@ -1099,7 +1143,7 @@ elif st.session_state.current_step == 4:
     if st.session_state.solutions:
         ranked = rank_solutions(st.session_state.solutions)
         st.markdown(
-            f'<div class="page-step-title" style="font-size:2.05rem; margin-top:0.2rem; margin-bottom:0.8rem;">🏆 解決策ランキング（{len(ranked)}件）</div>',
+            f'<div class="sub-section-title">🏆 解決策ランキング（{len(ranked)}件）</div>',
             unsafe_allow_html=True,
         )
 
@@ -1124,7 +1168,20 @@ elif st.session_state.current_step == 4:
                 for idx, (key, label) in enumerate(SCORING_AXES):
                     axis = scoring.get(key, {})
                     with score_cols[idx]:
-                        s = int(axis.get("score", 0))
+                        raw_score = axis.get("score", 0)
+
+                        # AI出力ゆれ対策:
+                        # score が数値ではなく dict で返るケースでも落ちないようにする
+                        if isinstance(raw_score, dict):
+                            raw_score = raw_score.get("value", raw_score.get("score", 0))
+
+                        try:
+                            s = int(float(raw_score))
+                        except (TypeError, ValueError):
+                            s = 0
+
+                        # 星表示の崩れ防止
+                        s = max(0, min(5, s))
                         stars = f"{'★' * s}{'☆' * (5-s)}"
                         st.markdown(
                             f"""
@@ -1216,7 +1273,7 @@ elif st.session_state.current_step == 5:
 
     if lc and "error" not in lc:
         # --- リーンキャンバス 9ブロック表示 ---
-        st.subheader("📋 リーンキャンバス")
+        st.markdown('<div class="sub-section-title">📋 リーンキャンバス</div>', unsafe_allow_html=True)
 
         # 上段: 課題 / 解決策 / UVP / 優位性 / 顧客セグメント
         row1 = st.columns(5)
@@ -1366,7 +1423,7 @@ elif st.session_state.current_step == 6:
     if team_data and "error" not in team_data:
         team = team_data.get("team", [])
 
-        st.subheader("👥 プロジェクトチーム")
+        st.markdown('<div class="sub-section-title">👥 プロジェクトチーム</div>', unsafe_allow_html=True)
 
         # ★ st.columns でチームメンバーを横並び表示
         member_cols = st.columns(len(team)) if team else []
@@ -1393,7 +1450,7 @@ elif st.session_state.current_step == 6:
         # チームのシナジーとリスク
         col1, col2 = st.columns(2)
         with col1:
-            st.subheader("🤝 チームシナジー")
+            st.markdown('<div class="sub-section-title">🤝 チームシナジー</div>', unsafe_allow_html=True)
             st.markdown(team_data.get("team_synergy", ""))
 
             # MBTI相性の補足情報
@@ -1410,7 +1467,7 @@ elif st.session_state.current_step == 6:
                 st.caption(get_mbti_compatibility_note(team_mbtis))
 
         with col2:
-            st.subheader("⚠️ 想定リスクと対策")
+            st.markdown('<div class="sub-section-title">⚠️ 想定リスクと対策</div>', unsafe_allow_html=True)
             st.markdown(team_data.get("team_risk", ""))
 
         st.divider()

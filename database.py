@@ -21,7 +21,9 @@ database.py — SQLite データベース操作モジュール
 """
 
 import json
+import csv
 import sqlite3
+import sys
 from pathlib import Path
 
 DB_PATH = Path("data/tech0_hr.db")
@@ -174,7 +176,10 @@ def init_db():
     count = cursor.fetchone()[0]
     conn.close()
 
-    if count == 0:
+    # 起動時に引数あり（python app.py seed）の場合は、Trueとする
+    is_seed = "seed" in sys.argv
+
+    if count == 0 or is_seed:
         seed()
 
 
@@ -195,18 +200,26 @@ def seed():
     cursor = conn.cursor()
     cursor.execute("DELETE FROM employees")
 
-    for emp in EMPLOYEES:
-        cursor.execute("""
+    #CSVファイルの従業員データの読み込み
+    csv_file ="employees.csv"
+
+    with open(csv_file, "r", encoding="utf-8") as f:        
+        reader = csv.reader(f)
+        next(reader) 
+        employyes_data = list(reader)
+
+    # Bulk Insertに変更
+    cursor.executemany("""
             INSERT INTO employees
                 (name, age, gender, department, position, years_experience,
                  skills, mbti, has_mba, past_projects, specialty,
                  leadership_score, creativity_score, execution_score,
                  communication_score, profile_summary)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, emp)
+        """, employyes_data)
 
     conn.commit()
-    print(f"{len(EMPLOYEES)}名のテクゼロン人財データを登録しました → {DB_PATH}")
+    print(f"{len(employyes_data)}名のテクゼロン人財データを登録しました")
     conn.close()
 
 

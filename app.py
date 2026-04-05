@@ -641,8 +641,10 @@ st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 # ★ 今回は画面上の案内用なので、環境変数の有無で判定する。
 OPENAI_CONNECTED = bool(os.getenv("OPENAI_API_KEY"))
 
-# DB 初期化
-init_db()
+# DB 初期化（アプリ起動時の初回1回だけ実行に変更）
+if "db_initialized" not in st.session_state:
+    init_db()
+    st.session_state.db_initialized = True
 
 # ---------- セッション状態の初期化 ---------- #
 # ★ session_state は辞書的に使える。ページ遷移しても値が残る。

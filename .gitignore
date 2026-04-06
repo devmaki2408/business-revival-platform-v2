@@ -1,6 +1,7 @@
 .env
-data/
 __pycache__/
 *.pyc
 .claude/
 venv/
+data/*
+!data/tech0_hr.db

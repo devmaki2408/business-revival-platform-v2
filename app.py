@@ -28,6 +28,7 @@ app.py — Streamlit メインアプリケーション
 import os
 import streamlit as st
 import json
+from PIL import Image
 from database import init_db, get_all_employees, save_session_log
 from crawler import (
     run_pest_analysis,
@@ -351,8 +352,6 @@ p, li, label, .stMarkdown, .stCaption, .stText {
 }
 
 /* ===== 入力欄の見た目 ===== */
-/* ===== 入力欄の見た目 ===== */
-/* ===== 入力欄の見た目 ===== */
 [data-testid="stTextInput"] {
     margin-bottom: 0.38rem;
 }
@@ -504,8 +503,108 @@ button[role="tab"][aria-selected="true"] {
     border-radius: 18px;
     padding: 0.75rem;
 }
+.sidebar-logo-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(148, 163, 184, 0.06) 100%);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 16px;
+    padding: 0.65rem 0.7rem;
+    margin: 0.1rem 0 0.85rem 0;
+    text-align: center;
+}
+
+.sidebar-logo-card [data-testid="stImage"] {
+    display: flex;
+    justify-content: center;
+}
+
+.sidebar-logo-card img {
+    width: 100%;
+    max-width: none;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 4px 12px rgba(15, 23, 42, 0.28));
+}
+
+.sidebar-step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin: 0.42rem 0;
+    line-height: 1.5;
+}
+
+.sidebar-step-badge {
+    width: 0.82rem;
+    height: 0.82rem;
+    border-radius: 999px;
+    flex: 0 0 0.82rem;
+    margin-top: 0.34rem;
+    border: 1px solid rgba(148, 163, 184, 0.34);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-step-item.done .sidebar-step-badge {
+    width: 1.05rem;
+    height: 1.05rem;
+    flex-basis: 1.05rem;
+    margin-top: 0.2rem;
+    border: none;
+    background: linear-gradient(90deg, #34d399 0%, #10b981 100%);
+    position: relative;
+}
+
+.sidebar-step-item.done .sidebar-step-badge::after {
+    content: "✓";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 900;
+}
+
+.sidebar-step-item.current .sidebar-step-badge {
+    border: none;
+    background: linear-gradient(90deg, #818cf8 0%, #8b5cf6 100%);
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18);
+}
+
+.sidebar-step-item.pending .sidebar-step-badge {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.sidebar-step-label {
+    color: #e5e7eb;
+    font-size: 1.02rem;
+    font-weight: 700;
+}
+
+.sidebar-step-item.current .sidebar-step-label {
+    color: #ffffff;
+}
+
+.sidebar-step-item.done .sidebar-step-label {
+    color: #cbd5e1;
+    opacity: 0.92;
+}
 
 /* ===== サイドバー調整 ===== */
+
+[data-testid="stSidebar"] [data-testid="stImage"] {
+    padding: 0.05rem 0 0.55rem 0;
+}
+
+[data-testid="stSidebar"] [data-testid="stImage"] img {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    display: block;
+}
+
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #050816 0%, #0b1020 100%);
     border-right: 1px solid rgba(99, 102, 241, 0.18);
@@ -668,6 +767,7 @@ a.anchor-link {
     margin: -0.15rem 0 0.95rem 0.1rem;
 }
 
+
 /* 補足説明・success/info/caption系も少し読みやすくする */
 [data-testid="stAlertContainer"] {
     font-size: 1.08rem;
@@ -678,6 +778,15 @@ a.anchor-link {
 [data-testid="stAlertContainer"] li {
     font-size: 1.08rem !important;
     line-height: 1.8 !important;
+}
+
+.sidebar-footer-note {
+    margin-top: 2.2rem;
+    padding-top: 1.0rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.10);
+    color: rgba(203, 213, 225, 0.38);
+    font-size: 0.74rem;
+    line-height: 1.55;
 }
 
 /* ===== 区切り線を少し柔らかくする ===== */
@@ -723,7 +832,12 @@ for key, default in DEFAULT_STATE.items():
 # ★ with st.sidebar: でサイドバー内にUI要素を配置
 
 with st.sidebar:
-    st.markdown("## 🧭 仮説設計フロー")
+    logo_img = Image.open("logo.png").convert("RGBA")
+    logo_bbox = logo_img.getbbox()
+    if logo_bbox:
+        logo_img = logo_img.crop(logo_bbox)
+    st.image(logo_img, use_container_width=True)
+    st.markdown("## 仮説設計フロー")
 
     steps = [
         "① 市場・ターゲット入力",
@@ -736,22 +850,27 @@ with st.sidebar:
 
     for i, step_name in enumerate(steps, start=1):
         if i < st.session_state.current_step:
-            st.markdown(f"✅ ~~{step_name}~~")
+            state_class = "done"
         elif i == st.session_state.current_step:
-            st.markdown(f"▶️ **{step_name}**")
+            state_class = "current"
         else:
-            st.markdown(f"⬜ {step_name}")
+            state_class = "pending"
 
-    st.divider()
+        st.markdown(
+            f'''
+            <div class="sidebar-step-item {state_class}">
+                <div class="sidebar-step-badge"></div>
+                <div class="sidebar-step-label">{step_name}</div>
+            </div>
+            ''',
+            unsafe_allow_html=True,
+        )
 
-    if st.button("🔄 最初からやり直す", use_container_width=True):
-        for key, default in DEFAULT_STATE.items():
-            st.session_state[key] = default
-        st.rerun()
-
-    st.divider()
-    st.caption("テクゼロン 新規事業設計支援アプリ v0.2")
-
+    st.markdown("<div style='height: 2.2rem;'></div>", unsafe_allow_html=True)
+    st.markdown(
+        '<div class="sidebar-footer-note">テクゼロン 新規事業設計支援アプリ v0.2</div>',
+        unsafe_allow_html=True,
+    )
 
 # ---------- （わーちゃん変更）メインヘッダー ---------- #
 # ★ st.title / st.caption に加えて
